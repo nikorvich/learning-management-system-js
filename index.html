@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB03 - Plataforma de Cursos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .nav-tabs { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-primary mb-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">EduTech Online - LAB03</span>
+    </div>
+</nav>
+
+<div class="container">
+    <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-cursos">Cursos & Conteúdo</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-usuarios">Usuários & Matrícula</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-financeiro">Financeiro</button></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-cursos">
+            <div class="d-flex justify-content-between mb-3">
+                <h3>Gestão de Cursos</h3>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCurso">Novo Curso</button>
+            </div>
+            <div class="row" id="containerCursos"></div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-usuarios">
+            <div class="card shadow-sm p-4">
+                <h3>Cadastro de Usuários</h3>
+                <form id="formUsuario" class="row g-3">
+                    <div class="col-md-6"><input type="text" id="userName" class="form-control" placeholder="Nome Completo" required></div>
+                    <div class="col-md-6"><input type="email" id="userEmail" class="form-control" placeholder="E-mail" required></div>
+                    <div class="col-12"><button type="submit" class="btn btn-primary">Registrar Usuário</button></div>
+                </form>
+                <hr>
+                <h4>Matrícula Rápida</h4>
+                <div class="row g-3">
+                    <div class="col-md-5"><select id="selUser" class="form-select"><option value="">Selecione o Usuário</option></select></div>
+                    <div class="col-md-5"><select id="selCurso" class="form-select"><option value="">Selecione o Curso</option></select></div>
+                    <div class="col-md-2"><button class="btn btn-dark w-100" onclick="sistema.matricular()">Matricular</button></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-financeiro">
+            <div class="card shadow-sm p-4 text-center">
+                <h3>Simulação de Checkout</h3>
+                <div class="row justify-content-center">
+                    <div class="col-md-4">
+                        <div class="card border-primary mb-3">
+                            <div class="card-header">Plano Pro</div>
+                            <div class="card-body">
+                                <h5 class="card-title">R$ 89,90/mês</h5>
+                                <button class="btn btn-primary" onclick="sistema.simularPagamento('Pro', 89.90)">Assinar Agora</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="logFinanceiro" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCurso" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="formCurso" class="modal-content">
+            <div class="modal-header"><h5>Cadastrar Novo Curso</h5></div>
+            <div class="modal-body">
+                <input type="text" id="cTitulo" class="form-control mb-2" placeholder="Título" required>
+                <textarea id="cDesc" class="form-control mb-2" placeholder="Descrição"></textarea>
+                <select id="cNivel" class="form-select mb-2" required>
+                    <option value="">Nível...</option>
+                    <option>Iniciante</option>
+                    <option>Intermediário</option>
+                    <option>Avançado</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+class Usuario {
+    constructor(nome, email) {
+        this.id = Date.now();
+        this.nome = nome;
+        this.email = email;
+    }
+}
+
+class Curso {
+    constructor(titulo, descricao, nivel) {
+        this.id = Date.now();
+        this.titulo = titulo;
+        this.descricao = descricao;
+        this.nivel = nivel;
+    }
+}
+
+class Sistema {
+    constructor() {
+        this.usuarios = [];
+        this.cursos = [];
+        this.init();
+    }
+
+    init() {
+        document.getElementById('formUsuario').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.addUsuario();
+        });
+        document.getElementById('formCurso').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.addCurso();
+        });
+    }
+
+    addCurso() {
+        const c = new Curso(
+            document.getElementById('cTitulo').value,
+            document.getElementById('cDesc').value,
+            document.getElementById('cNivel').value
+        );
+        this.cursos.push(c);
+        this.renderCursos();
+        bootstrap.Modal.getInstance(document.getElementById('modalCurso')).hide();
+        document.getElementById('formCurso').reset();
+    }
+
+    renderCursos() {
+        const container = document.getElementById('containerCursos');
+        const sel = document.getElementById('selCurso');
+        container.innerHTML = '';
+        sel.innerHTML = '<option value="">Selecione o Curso</option>';
+
+        this.cursos.forEach(c => {
+            container.innerHTML += `
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <span class="badge bg-secondary mb-2">${c.nivel}</span>
+                            <h5>${c.titulo}</h5>
+                            <p class="small text-muted">${c.descricao}</p>
+                        </div>
+                    </div>
+                </div>`;
+            sel.innerHTML += `<option value="${c.id}">${c.titulo}</option>`;
+        });
+    }
+
+    addUsuario() {
+        const u = new Usuario(
+            document.getElementById('userName').value,
+            document.getElementById('userEmail').value
+        );
+        this.usuarios.push(u);
+        this.renderUsers();
+        document.getElementById('formUsuario').reset();
+    }
+
+    renderUsers() {
+        const sel = document.getElementById('selUser');
+        sel.innerHTML = '<option value="">Selecione o Usuário</option>';
+        this.usuarios.forEach(u => {
+            sel.innerHTML += `<option value="${u.id}">${u.nome}</option>`;
+        });
+    }
+
+    matricular() {
+        const uId = document.getElementById('selUser').value;
+        const cId = document.getElementById('selCurso').value;
+        if(!uId || !cId) return alert("Selecione os campos");
+        alert("Matrícula feita!");
+    }
+
+    simularPagamento(plano, valor) {
+        const id = Math.floor(Math.random() * 999999);
+        document.getElementById('logFinanceiro').innerHTML = `
+            <div class="alert alert-success">
+                Pago: ${plano} - ID: ${id}
+            </div>`;
+    }
+}
+
+const sistema = new Sistema();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
