@@ -3,200 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAB03 - Plataforma de Cursos</title>
+    <title>LAB03 - Sistema Integrado EduTech</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
-        .nav-tabs { margin-bottom: 20px; }
+        :root { --primary-dark: #1e293b; }
+        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; }
+        .nav-tabs .nav-link { color: #64748b; font-weight: 500; }
+        .nav-tabs .nav-link.active { color: #2563eb; border-bottom: 3px solid #2563eb; }
+        .card-entity { border-left: 4px solid #2563eb; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-dark bg-primary mb-4">
+<nav class="navbar navbar-dark bg-dark mb-4 shadow">
     <div class="container">
-        <span class="navbar-brand mb-0 h1">EduTech Online - LAB03</span>
+        <span class="navbar-brand">EduTech <strong>Pro</strong> | Verificador de Integridade</span>
     </div>
 </nav>
 
-<div class="container">
-    <ul class="nav nav-tabs" id="mainTabs" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-cursos">Cursos & Conteúdo</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-usuarios">Usuários & Matrícula</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-financeiro">Financeiro</button></li>
+<div class="container pb-5">
+    <ul class="nav nav-tabs mb-4" id="labTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#mod-acad">Acadêmico</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#mod-user">Usuários & Progresso</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#mod-fin">Financeiro</button></li>
     </ul>
 
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="tab-cursos">
-            <div class="d-flex justify-content-between mb-3">
-                <h3>Gestão de Cursos</h3>
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCurso">Novo Curso</button>
-            </div>
-            <div class="row" id="containerCursos"></div>
-        </div>
-
-        <div class="tab-pane fade" id="tab-usuarios">
-            <div class="card shadow-sm p-4">
-                <h3>Cadastro de Usuários</h3>
-                <form id="formUsuario" class="row g-3">
-                    <div class="col-md-6"><input type="text" id="userName" class="form-control" placeholder="Nome Completo" required></div>
-                    <div class="col-md-6"><input type="email" id="userEmail" class="form-control" placeholder="E-mail" required></div>
-                    <div class="col-12"><button type="submit" class="btn btn-primary">Registrar Usuário</button></div>
-                </form>
-                <hr>
-                <h4>Matrícula Rápida</h4>
-                <div class="row g-3">
-                    <div class="col-md-5"><select id="selUser" class="form-select"><option value="">Selecione o Usuário</option></select></div>
-                    <div class="col-md-5"><select id="selCurso" class="form-select"><option value="">Selecione o Curso</option></select></div>
-                    <div class="col-md-2"><button class="btn btn-dark w-100" onclick="sistema.matricular()">Matricular</button></div>
+        <div class="tab-pane fade show active" id="mod-acad">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-3">
+                        <h5>Nova Categoria</h5>
+                        <input type="text" id="catNome" class="form-control mb-2" placeholder="Nome">
+                        <textarea id="catDesc" class="form-control mb-2" placeholder="Descrição"></textarea>
+                        <button class="btn btn-primary w-100" onclick="app.cadastrarCategoria()">Salvar Categoria</button>
+                    </div>
+                    <div class="card shadow-sm p-3 mt-3">
+                        <h5>Novo Curso</h5>
+                        <select id="curCat" class="form-select mb-2"><option value="">Categoria...</option></select>
+                        <input type="text" id="curTitulo" class="form-control mb-2" placeholder="Título">
+                        <select id="curNivel" class="form-select mb-2">
+                            <option>Iniciante</option>
+                            <option>Intermediário</option>
+                            <option>Avançado</option>
+                        </select>
+                        <button class="btn btn-success w-100" onclick="app.cadastrarCurso()">Salvar Curso</button>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card shadow-sm p-3">
+                        <h5>Estrutura de Conteúdo (Módulos/Aulas)</h5>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6"><select id="selCurConteudo" class="form-select" onchange="app.renderEstrutura()"><option value="">Selecione o Curso</option></select></div>
+                            <div class="col-3"><button class="btn btn-outline-dark w-100" onclick="app.addModulo()">+ Módulo</button></div>
+                            <div class="col-3"><button class="btn btn-outline-dark w-100" onclick="app.addAula()">+ Aula</button></div>
+                        </div>
+                        <div id="arvoreConteudo" class="accordion"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="tab-pane fade" id="tab-financeiro">
-            <div class="card shadow-sm p-4 text-center">
-                <h3>Simulação de Checkout</h3>
-                <div class="row justify-content-center">
+        <div class="tab-pane fade" id="mod-user">
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <div class="card shadow-sm p-3">
+                        <h5>Registro de Usuário</h5>
+                        <input type="text" id="uNome" class="form-control mb-2" placeholder="Nome Completo">
+                        <input type="email" id="uEmail" class="form-control mb-2" placeholder="E-mail">
+                        <input type="password" id="uSenha" class="form-control mb-2" placeholder="Senha">
+                        <button class="btn btn-primary w-100" onclick="app.cadastrarUsuario()">Registrar</button>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="card shadow-sm p-3">
+                        <h5>Simular Matrícula</h5>
+                        <div class="d-flex gap-2">
+                            <select id="selUserMat" class="form-select"></select>
+                            <select id="selCurMat" class="form-select"></select>
+                            <button class="btn btn-dark" onclick="app.matricular()">Matricular</button>
+                        </div>
+                        <hr>
+                        <h5>Certificados Gerados</h5>
+                        <div id="listaCertificados" class="list-group"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="mod-fin">
+            <div class="card shadow-sm p-4">
+                <h3 class="text-center mb-4">Checkout de Assinatura</h3>
+                <div class="row justify-content-center g-3">
                     <div class="col-md-4">
-                        <div class="card border-primary mb-3">
-                            <div class="card-header">Plano Pro</div>
+                        <div class="card border-primary text-center">
+                            <div class="card-header bg-primary text-white">PLANO PRO</div>
                             <div class="card-body">
-                                <h5 class="card-title">R$ 89,90/mês</h5>
-                                <button class="btn btn-primary" onclick="sistema.simularPagamento('Pro', 89.90)">Assinar Agora</button>
+                                <h2>R$ 149,90</h2>
+                                <p class="text-muted">Acesso anual (12 meses)</p>
+                                <select id="payMetodo" class="form-select mb-3">
+                                    <option>Cartão de Crédito</option>
+                                    <option>PIX</option>
+                                    <option>Boleto</option>
+                                </select>
+                                <button class="btn btn-primary w-100" onclick="app.processarPagamento(1, 149.90)">Assinar Agora</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div id="logFinanceiro" class="mt-3"></div>
+                <div id="logPagamentos" class="mt-4"></div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalCurso" tabindex="-1">
-    <div class="modal-dialog">
-        <form id="formCurso" class="modal-content">
-            <div class="modal-header"><h5>Cadastrar Novo Curso</h5></div>
-            <div class="modal-body">
-                <input type="text" id="cTitulo" class="form-control mb-2" placeholder="Título" required>
-                <textarea id="cDesc" class="form-control mb-2" placeholder="Descrição"></textarea>
-                <select id="cNivel" class="form-select mb-2" required>
-                    <option value="">Nível...</option>
-                    <option>Iniciante</option>
-                    <option>Intermediário</option>
-                    <option>Avançado</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success">Salvar</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script>
+
 class Usuario {
-    constructor(nome, email) {
-        this.id = Date.now();
-        this.nome = nome;
-        this.email = email;
+    constructor(id, nome, email, senha) {
+        this.ID_Usuario = id;
+        this.NomeCompleto = nome;
+        this.Email = email;
+        this.SenhaHash = btoa(senha);
+        this.DataCadastro = new Date().toISOString();
     }
 }
 
 class Curso {
-    constructor(titulo, descricao, nivel) {
-        this.id = Date.now();
-        this.titulo = titulo;
-        this.descricao = descricao;
-        this.nivel = nivel;
+    constructor(id, titulo, catId, nivel) {
+        this.ID_Curso = id;
+        this.Titulo = titulo;
+        this.ID_Categoria = catId;
+        this.Nivel = nivel;
+        this.Modulos = [];
     }
 }
 
-class Sistema {
+class Modulo {
+    constructor(id, cursoId, titulo, ordem) {
+        this.ID_Modulo = id;
+        this.ID_Curso = cursoId;
+        this.Titulo = titulo;
+        this.Ordem = ordem;
+        this.Aulas = [];
+    }
+}
+
+class Aula {
+    constructor(id, modId, titulo, ordem) {
+        this.ID_Aula = id;
+        this.ID_Modulo = modId;
+        this.Titulo = titulo;
+        this.Ordem = ordem;
+        this.TipoConteudo = 'Vídeo';
+    }
+}
+
+class Pagamento {
+    constructor(id, assinId, valor, metodo) {
+        this.ID_Pagamento = id;
+        this.ID_Assinatura = assinId;
+        this.ValorPago = valor;
+        this.MetodoPagamento = metodo;
+        this.Id_Transacao_Gateway = "GW-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+        this.DataPagamento = new Date().toLocaleString();
+    }
+}
+
+class SistemaEduTech {
     constructor() {
         this.usuarios = [];
+        this.categorias = [];
         this.cursos = [];
-        this.init();
+        this.pagamentos = [];
+        this.certificados = [];
     }
 
-    init() {
-        document.getElementById('formUsuario').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addUsuario();
-        });
-        document.getElementById('formCurso').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addCurso();
-        });
+    cadastrarCategoria() {
+        const nome = document.getElementById('catNome').value;
+        if(!nome) return alert("Erro: Nome obrigatório");
+        this.categorias.push({ ID_Categoria: Date.now(), Nome: nome, Descricao: document.getElementById('catDesc').value });
+        this.updateSelectors();
+        alert("Categoria Criada");
     }
 
-    addCurso() {
-        const c = new Curso(
-            document.getElementById('cTitulo').value,
-            document.getElementById('cDesc').value,
-            document.getElementById('cNivel').value
-        );
-        this.cursos.push(c);
-        this.renderCursos();
-        bootstrap.Modal.getInstance(document.getElementById('modalCurso')).hide();
-        document.getElementById('formCurso').reset();
+    cadastrarCurso() {
+        const catId = document.getElementById('curCat').value;
+        const titulo = document.getElementById('curTitulo').value;
+        if(!catId || !titulo) return alert("Erro: Preencha todos os campos");
+        const curso = new Curso(Date.now(), titulo, catId, document.getElementById('curNivel').value);
+        this.cursos.push(curso);
+        this.updateSelectors();
+        alert("Curso Criado");
     }
 
-    renderCursos() {
-        const container = document.getElementById('containerCursos');
-        const sel = document.getElementById('selCurso');
+    addModulo() {
+        const cursoId = document.getElementById('selCurConteudo').value;
+        if(!cursoId) return alert("Selecione um curso");
+        const curso = this.cursos.find(c => c.ID_Curso == cursoId);
+        const mod = new Modulo(Date.now(), cursoId, `Módulo ${curso.Modulos.length + 1}`, curso.Modulos.length + 1);
+        curso.Modulos.push(mod);
+        this.renderEstrutura();
+    }
+
+    addAula() {
+        const cursoId = document.getElementById('selCurConteudo').value;
+        const curso = this.cursos.find(c => c.ID_Curso == cursoId);
+        if(!curso || curso.Modulos.length === 0) return alert("Crie um módulo primeiro");
+        const mod = curso.Modulos[curso.Modulos.length - 1];
+        const aula = new Aula(Date.now(), mod.ID_Modulo, `Aula ${mod.Aulas.length + 1}`, mod.Aulas.length + 1);
+        mod.Aulas.push(aula);
+        this.renderEstrutura();
+    }
+
+    renderEstrutura() {
+        const cursoId = document.getElementById('selCurConteudo').value;
+        const container = document.getElementById('arvoreConteudo');
         container.innerHTML = '';
-        sel.innerHTML = '<option value="">Selecione o Curso</option>';
+        const curso = this.cursos.find(c => c.ID_Curso == cursoId);
+        if(!curso) return;
 
-        this.cursos.forEach(c => {
+        curso.Modulos.forEach(m => {
             container.innerHTML += `
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <span class="badge bg-secondary mb-2">${c.nivel}</span>
-                            <h5>${c.titulo}</h5>
-                            <p class="small text-muted">${c.descricao}</p>
+                <div class="accordion-item">
+                    <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#mod${m.ID_Modulo}">
+                        Módulo ${m.Ordem}: ${m.Titulo}
+                    </button></h2>
+                    <div id="mod${m.ID_Modulo}" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <ul class="list-group">
+                                ${m.Aulas.map(a => `<li class="list-group-item d-flex justify-content-between">
+                                    <span>${a.Ordem}. ${a.Titulo}</span>
+                                    <span class="badge bg-info text-dark">${a.TipoConteudo}</span>
+                                </li>`).join('')}
+                            </ul>
                         </div>
                     </div>
                 </div>`;
-            sel.innerHTML += `<option value="${c.id}">${c.titulo}</option>`;
         });
     }
 
-    addUsuario() {
-        const u = new Usuario(
-            document.getElementById('userName').value,
-            document.getElementById('userEmail').value
-        );
+    cadastrarUsuario() {
+        const u = new Usuario(Date.now(), document.getElementById('uNome').value, document.getElementById('uEmail').value, document.getElementById('uSenha').value);
         this.usuarios.push(u);
-        this.renderUsers();
-        document.getElementById('formUsuario').reset();
-    }
-
-    renderUsers() {
-        const sel = document.getElementById('selUser');
-        sel.innerHTML = '<option value="">Selecione o Usuário</option>';
-        this.usuarios.forEach(u => {
-            sel.innerHTML += `<option value="${u.id}">${u.nome}</option>`;
-        });
+        this.updateSelectors();
+        alert("Usuário registrado no sistema");
     }
 
     matricular() {
-        const uId = document.getElementById('selUser').value;
-        const cId = document.getElementById('selCurso').value;
-        if(!uId || !cId) return alert("Selecione os campos");
-        alert("Matrícula feita!");
+        const uId = document.getElementById('selUserMat').value;
+        const cId = document.getElementById('selCurMat').value;
+        if(!uId || !cId) return;
+
+        const cert = {
+            ID_Certificado: 'CERT-' + Math.floor(Math.random()*10000),
+            ID_Usuario: uId,
+            ID_Curso: cId,
+            CodigoVerificacao: Math.random().toString(36).toUpperCase().substring(2, 10),
+            DataEmissao: new Date().toLocaleDateString()
+        };
+
+        this.certificados.push(cert);
+        this.renderCertificados();
+        alert("Matrícula vinculada e certificado gerado");
     }
 
-    simularPagamento(plano, valor) {
-        const id = Math.floor(Math.random() * 999999);
-        document.getElementById('logFinanceiro').innerHTML = `
+    renderCertificados() {
+        const list = document.getElementById('listaCertificados');
+        list.innerHTML = this.certificados.map(c => `
+            <div class="list-group-item">
+                <strong>Cod: ${c.CodigoVerificacao}</strong><br>
+                <small>Emitido em: ${c.DataEmissao}</small>
+            </div>`).join('');
+    }
+
+    processarPagamento(assinId, valor) {
+        const metodo = document.getElementById('payMetodo').value;
+        const pay = new Pagamento(Date.now(), assinId, valor, metodo);
+        this.pagamentos.push(pay);
+
+        document.getElementById('logPagamentos').innerHTML = `
             <div class="alert alert-success">
-                Pago: ${plano} - ID: ${id}
+                <strong>Pagamento Aprovado!</strong><br>
+                Transação: ${pay.Id_Transacao_Gateway} <br>
+                Método: ${pay.MetodoPagamento} | Valor: R$ ${pay.ValorPago}
             </div>`;
+    }
+
+    updateSelectors() {
+        document.getElementById('curCat').innerHTML =
+            '<option value="">Categoria...</option>' +
+            this.categorias.map(c => `<option value="${c.ID_Categoria}">${c.Nome}</option>`).join('');
+
+        document.getElementById('selCurConteudo').innerHTML =
+            '<option value="">Selecione o Curso</option>' +
+            this.cursos.map(c => `<option value="${c.ID_Curso}">${c.Titulo}</option>`).join('');
+
+        document.getElementById('selUserMat').innerHTML =
+            this.usuarios.map(u => `<option value="${u.ID_Usuario}">${u.NomeCompleto}</option>`).join('');
+
+        document.getElementById('selCurMat').innerHTML =
+            this.cursos.map(c => `<option value="${c.ID_Curso}">${c.Titulo}</option>`).join('');
     }
 }
 
-const sistema = new Sistema();
+const app = new SistemaEduTech();
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
