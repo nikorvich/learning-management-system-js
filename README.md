@@ -1,31 +1,99 @@
-# EduTech Pro: Verificador de Integridade (LAB03)
+# Learning Management System (LMS)
 
-Sistema de prototipagem funcional para gerenciamento de ecossistemas educacionais, incluindo estruturação de conteúdo, registro de usuários e processamento de pagamentos.
+Sistema de gerenciamento de aprendizagem desenvolvido em JavaScript, permitindo a administração de cursos, conteúdos educacionais, usuários, matrículas, certificados e processamento de pagamentos.
 
 ---
 
-## 🚀 Funcionalidades Principais
+## 🚀 Funcionalidades
 
-* **Módulo Acadêmico**: Criação de categorias, cursos e estruturação hierárquica (Módulos > Aulas).
-* **Módulo de Usuários**: Cadastro de alunos e simulação de matrículas com emissão imediata de certificados.
-* **Módulo Financeiro**: Checkout de assinaturas com suporte a múltiplos métodos de pagamento (Cartão, PIX, Boleto) e log de transações.
+### Módulo Acadêmico
+
+* Cadastro de categorias e cursos.
+* Organização hierárquica de conteúdo em módulos e aulas.
+* Visualização dinâmica da estrutura dos cursos.
+
+### Módulo de Usuários
+
+* Registro de usuários.
+* Simulação de matrículas em cursos.
+* Geração automática de certificados.
+
+### Módulo Financeiro
+
+* Simulação de checkout de assinaturas.
+* Suporte a múltiplos métodos de pagamento:
+
+  * Cartão de Crédito
+  * PIX
+  * Boleto
+* Registro e exibição de transações processadas.
+
+---
 
 ## 🛠️ Tecnologias
 
-* **Front-end**: HTML5, CSS3, JavaScript (ES6+).
-* **Framework**: Bootstrap 5 (Layout responsivo e componentes UI).
-* **Arquitetura**: Orientada a objetos (Vanilla JS) para gestão de estado em memória.
+* HTML5
+* CSS3
+* JavaScript (ES6+)
+* Bootstrap 5
 
-## 📋 Como utilizar
+### Arquitetura
 
-1. **Acadêmico**: Utilize o painel lateral para registrar categorias e cursos. Selecione um curso na aba à direita para adicionar módulos e aulas dinamicamente.
-2. **Usuários**: Registre novos usuários na aba "Usuários & Progresso" e utilize os seletores para vincular usuários a cursos, gerando um certificado instantâneo.
-3. **Financeiro**: Simule o fluxo de pagamento acessando a aba "Financeiro" e selecionando o método de pagamento desejado.
+* Programação Orientada a Objetos (OOP)
+* Gerenciamento de estado em memória
+* Estrutura modular baseada em entidades de domínio
+
+---
+
+## 📋 Como Utilizar
+
+### Acadêmico
+
+1. Cadastre uma categoria.
+2. Crie um curso associado à categoria.
+3. Selecione o curso desejado.
+4. Adicione módulos e aulas à estrutura de conteúdo.
+
+### Usuários
+
+1. Registre um novo usuário.
+2. Selecione um usuário e um curso.
+3. Realize a matrícula.
+4. Visualize o certificado gerado automaticamente.
+
+### Financeiro
+
+1. Escolha um método de pagamento.
+2. Simule a contratação da assinatura.
+3. Consulte o registro da transação processada.
+
+---
 
 ## 🏗️ Estrutura do Código
 
-O sistema utiliza a classe principal `SistemaEduTech` para gerenciar o estado da aplicação e as interações entre os módulos:
+A aplicação utiliza a classe principal `LearningManagementSystem` para gerenciar o estado e as interações entre os módulos.
 
-* `Usuario`, `Curso`, `Modulo`, `Aula`, `Pagamento`: Modelos de dados.
-* `renderEstrutura()`: Atualiza a interface da árvore de conteúdo em tempo real.
-* `updateSelectors()`: Sincroniza os campos `<select>` baseados nos dados persistidos.
+### Entidades
+
+* `Usuario`
+* `Curso`
+* `Modulo`
+* `Aula`
+* `Pagamento`
+
+### Métodos Principais
+
+* `cadastrarCategoria()` — Criação de categorias.
+* `cadastrarCurso()` — Cadastro de cursos.
+* `cadastrarUsuario()` — Registro de usuários.
+* `matricular()` — Vinculação de usuários a cursos e emissão de certificados.
+* `processarPagamento()` — Simulação de pagamentos.
+* `renderEstrutura()` — Atualização da árvore de conteúdo.
+* `renderCertificados()` — Exibição dos certificados gerados.
+* `updateSelectors()` — Sincronização dos campos de seleção da interface.
+
+---
+
+## 🎯 Objetivo
+
+Demonstrar a implementação de um sistema educacional simplificado com gerenciamento de conteúdo, usuários e pagamentos, utilizando JavaScript puro e Bootstrap para construção da interface.
