@@ -1,0 +1,18 @@
+:root { 
+    --primary-dark: #1e293b; 
+}
+body { 
+    background-color: #f1f5f9; 
+    font-family: 'Inter', sans-serif; 
+}
+.nav-tabs .nav-link { 
+    color: #64748b; 
+    font-weight: 500; 
+}
+.nav-tabs .nav-link.active { 
+    color: #2563eb; 
+    border-bottom: 3px solid #2563eb; 
+}
+.card-entity { 
+    border-left: 4px solid #2563eb; 
+}
