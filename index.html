@@ -5,13 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learning Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root { --primary-dark: #1e293b; }
-        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; }
-        .nav-tabs .nav-link { color: #64748b; font-weight: 500; }
-        .nav-tabs .nav-link.active { color: #2563eb; border-bottom: 3px solid #2563eb; }
-        .card-entity { border-left: 4px solid #2563eb; }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -36,7 +30,7 @@
                         <h5>Nova Categoria</h5>
                         <input type="text" id="catNome" class="form-control mb-2" placeholder="Nome">
                         <textarea id="catDesc" class="form-control mb-2" placeholder="Descrição"></textarea>
-                        <button class="btn btn-primary w-100" onclick="app.cadastrarCategoria()">Salvar Categoria</button>
+                        <button class="btn btn-primary w-100" id="btnSalvarCategoria">Salvar Categoria</button>
                     </div>
                     <div class="card shadow-sm p-3 mt-3">
                         <h5>Novo Curso</h5>
@@ -47,16 +41,20 @@
                             <option>Intermediário</option>
                             <option>Avançado</option>
                         </select>
-                        <button class="btn btn-success w-100" onclick="app.cadastrarCurso()">Salvar Curso</button>
+                        <button class="btn btn-success w-100" id="btnSalvarCurso">Salvar Curso</button>
                     </div>
                 </div>
                 <div class="col-md-8">
                     <div class="card shadow-sm p-3">
                         <h5>Estrutura de Conteúdo (Módulos/Aulas)</h5>
                         <div class="row g-2 mb-3">
-                            <div class="col-6"><select id="selCurConteudo" class="form-select" onchange="app.renderEstrutura()"><option value="">Selecione o Curso</option></select></div>
-                            <div class="col-3"><button class="btn btn-outline-dark w-100" onclick="app.addModulo()">+ Módulo</button></div>
-                            <div class="col-3"><button class="btn btn-outline-dark w-100" onclick="app.addAula()">+ Aula</button></div>
+                            <div class="col-6">
+                                <select id="selCurConteudo" class="form-select">
+                                    <option value="">Selecione o Curso</option>
+                                </select>
+                            </div>
+                            <div class="col-3"><button class="btn btn-outline-dark w-100" id="btnAddModulo">+ Módulo</button></div>
+                            <div class="col-3"><button class="btn btn-outline-dark w-100" id="btnAddAula">+ Aula</button></div>
                         </div>
                         <div id="arvoreConteudo" class="accordion"></div>
                     </div>
@@ -72,7 +70,7 @@
                         <input type="text" id="uNome" class="form-control mb-2" placeholder="Nome Completo">
                         <input type="email" id="uEmail" class="form-control mb-2" placeholder="E-mail">
                         <input type="password" id="uSenha" class="form-control mb-2" placeholder="Senha">
-                        <button class="btn btn-primary w-100" onclick="app.cadastrarUsuario()">Registrar</button>
+                        <button class="btn btn-primary w-100" id="btnRegistrarUsuario">Registrar</button>
                     </div>
                 </div>
                 <div class="col-md-7">
@@ -81,7 +79,7 @@
                         <div class="d-flex gap-2">
                             <select id="selUserMat" class="form-select"></select>
                             <select id="selCurMat" class="form-select"></select>
-                            <button class="btn btn-dark" onclick="app.matricular()">Matricular</button>
+                            <button class="btn btn-dark" id="btnMatricular">Matricular</button>
                         </div>
                         <hr>
                         <h5>Certificados Gerados</h5>
@@ -106,7 +104,7 @@
                                     <option>PIX</option>
                                     <option>Boleto</option>
                                 </select>
-                                <button class="btn btn-primary w-100" onclick="app.processarPagamento(1, 149.90)">Assinar Agora</button>
+                                <button class="btn btn-primary w-100" id="btnAssinar">Assinar Agora</button>
                             </div>
                         </div>
                     </div>
@@ -117,199 +115,7 @@
     </div>
 </div>
 
-<script>
-
-class Usuario {
-    constructor(id, nome, email, senha) {
-        this.ID_Usuario = id;
-        this.NomeCompleto = nome;
-        this.Email = email;
-        this.SenhaHash = btoa(senha);
-        this.DataCadastro = new Date().toISOString();
-    }
-}
-
-class Curso {
-    constructor(id, titulo, catId, nivel) {
-        this.ID_Curso = id;
-        this.Titulo = titulo;
-        this.ID_Categoria = catId;
-        this.Nivel = nivel;
-        this.Modulos = [];
-    }
-}
-
-class Modulo {
-    constructor(id, cursoId, titulo, ordem) {
-        this.ID_Modulo = id;
-        this.ID_Curso = cursoId;
-        this.Titulo = titulo;
-        this.Ordem = ordem;
-        this.Aulas = [];
-    }
-}
-
-class Aula {
-    constructor(id, modId, titulo, ordem) {
-        this.ID_Aula = id;
-        this.ID_Modulo = modId;
-        this.Titulo = titulo;
-        this.Ordem = ordem;
-        this.TipoConteudo = 'Vídeo';
-    }
-}
-
-class Pagamento {
-    constructor(id, assinId, valor, metodo) {
-        this.ID_Pagamento = id;
-        this.ID_Assinatura = assinId;
-        this.ValorPago = valor;
-        this.MetodoPagamento = metodo;
-        this.Id_Transacao_Gateway = "GW-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-        this.DataPagamento = new Date().toLocaleString();
-    }
-}
-
-class LearningManagementSystem {
-    constructor() {
-        this.usuarios = [];
-        this.categorias = [];
-        this.cursos = [];
-        this.pagamentos = [];
-        this.certificados = [];
-    }
-
-    cadastrarCategoria() {
-        const nome = document.getElementById('catNome').value;
-        if(!nome) return alert("Erro: Nome obrigatório");
-        this.categorias.push({ ID_Categoria: Date.now(), Nome: nome, Descricao: document.getElementById('catDesc').value });
-        this.updateSelectors();
-        alert("Categoria Criada");
-    }
-
-    cadastrarCurso() {
-        const catId = document.getElementById('curCat').value;
-        const titulo = document.getElementById('curTitulo').value;
-        if(!catId || !titulo) return alert("Erro: Preencha todos os campos");
-        const curso = new Curso(Date.now(), titulo, catId, document.getElementById('curNivel').value);
-        this.cursos.push(curso);
-        this.updateSelectors();
-        alert("Curso Criado");
-    }
-
-    addModulo() {
-        const cursoId = document.getElementById('selCurConteudo').value;
-        if(!cursoId) return alert("Selecione um curso");
-        const curso = this.cursos.find(c => c.ID_Curso == cursoId);
-        const mod = new Modulo(Date.now(), cursoId, `Módulo ${curso.Modulos.length + 1}`, curso.Modulos.length + 1);
-        curso.Modulos.push(mod);
-        this.renderEstrutura();
-    }
-
-    addAula() {
-        const cursoId = document.getElementById('selCurConteudo').value;
-        const curso = this.cursos.find(c => c.ID_Curso == cursoId);
-        if(!curso || curso.Modulos.length === 0) return alert("Crie um módulo primeiro");
-        const mod = curso.Modulos[curso.Modulos.length - 1];
-        const aula = new Aula(Date.now(), mod.ID_Modulo, `Aula ${mod.Aulas.length + 1}`, mod.Aulas.length + 1);
-        mod.Aulas.push(aula);
-        this.renderEstrutura();
-    }
-
-    renderEstrutura() {
-        const cursoId = document.getElementById('selCurConteudo').value;
-        const container = document.getElementById('arvoreConteudo');
-        container.innerHTML = '';
-        const curso = this.cursos.find(c => c.ID_Curso == cursoId);
-        if(!curso) return;
-
-        curso.Modulos.forEach(m => {
-            container.innerHTML += `
-                <div class="accordion-item">
-                    <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#mod${m.ID_Modulo}">
-                        Módulo ${m.Ordem}: ${m.Titulo}
-                    </button></h2>
-                    <div id="mod${m.ID_Modulo}" class="accordion-collapse collapse">
-                        <div class="accordion-body">
-                            <ul class="list-group">
-                                ${m.Aulas.map(a => `<li class="list-group-item d-flex justify-content-between">
-                                    <span>${a.Ordem}. ${a.Titulo}</span>
-                                    <span class="badge bg-info text-dark">${a.TipoConteudo}</span>
-                                </li>`).join('')}
-                            </ul>
-                        </div>
-                    </div>
-                </div>`;
-        });
-    }
-
-    cadastrarUsuario() {
-        const u = new Usuario(Date.now(), document.getElementById('uNome').value, document.getElementById('uEmail').value, document.getElementById('uSenha').value);
-        this.usuarios.push(u);
-        this.updateSelectors();
-        alert("Usuário registrado no sistema");
-    }
-
-    matricular() {
-        const uId = document.getElementById('selUserMat').value;
-        const cId = document.getElementById('selCurMat').value;
-        if(!uId || !cId) return;
-
-        const cert = {
-            ID_Certificado: 'CERT-' + Math.floor(Math.random()*10000),
-            ID_Usuario: uId,
-            ID_Curso: cId,
-            CodigoVerificacao: Math.random().toString(36).toUpperCase().substring(2, 10),
-            DataEmissao: new Date().toLocaleDateString()
-        };
-
-        this.certificados.push(cert);
-        this.renderCertificados();
-        alert("Matrícula vinculada e certificado gerado");
-    }
-
-    renderCertificados() {
-        const list = document.getElementById('listaCertificados');
-        list.innerHTML = this.certificados.map(c => `
-            <div class="list-group-item">
-                <strong>Cod: ${c.CodigoVerificacao}</strong><br>
-                <small>Emitido em: ${c.DataEmissao}</small>
-            </div>`).join('');
-    }
-
-    processarPagamento(assinId, valor) {
-        const metodo = document.getElementById('payMetodo').value;
-        const pay = new Pagamento(Date.now(), assinId, valor, metodo);
-        this.pagamentos.push(pay);
-
-        document.getElementById('logPagamentos').innerHTML = `
-            <div class="alert alert-success">
-                <strong>Pagamento Aprovado!</strong><br>
-                Transação: ${pay.Id_Transacao_Gateway} <br>
-                Método: ${pay.MetodoPagamento} | Valor: R$ ${pay.ValorPago}
-            </div>`;
-    }
-
-    updateSelectors() {
-        document.getElementById('curCat').innerHTML =
-            '<option value="">Categoria...</option>' +
-            this.categorias.map(c => `<option value="${c.ID_Categoria}">${c.Nome}</option>`).join('');
-
-        document.getElementById('selCurConteudo').innerHTML =
-            '<option value="">Selecione o Curso</option>' +
-            this.cursos.map(c => `<option value="${c.ID_Curso}">${c.Titulo}</option>`).join('');
-
-        document.getElementById('selUserMat').innerHTML =
-            this.usuarios.map(u => `<option value="${u.ID_Usuario}">${u.NomeCompleto}</option>`).join('');
-
-        document.getElementById('selCurMat').innerHTML =
-            this.cursos.map(c => `<option value="${c.ID_Curso}">${c.Titulo}</option>`).join('');
-    }
-}
-
-const app = new SistemaEduTech();
-
-</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
